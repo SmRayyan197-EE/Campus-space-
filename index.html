@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusSpace | Room Booking</title>
+<style>
+:root{--navy:#14213d;--blue:#2563eb;--pale:#eff6ff;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--bg:#f6f8fc;--green:#15803d;--red:#b91c1c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#14213d,#1d4ed8);color:#fff;padding:24px max(20px,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:13px;background:#fff;color:#1d4ed8;display:grid;place-items:center;font-size:24px;font-weight:800}.brand h1{font-size:22px;margin:0}.brand p{margin:4px 0 0;color:#dbeafe;font-size:13px}
+nav{display:flex;gap:8px;flex-wrap:wrap}nav button{border:1px solid #ffffff55;background:#ffffff12;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600}nav button.active,nav button:hover{background:#fff;color:#1d4ed8}
+main{max-width:1180px;margin:28px auto;padding:0 20px}.hero{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:20px}.hero h2{font-size:28px;margin:0 0 6px}.hero p{margin:0;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 22px}.stat,.panel,.room-card{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 4px 14px #0f172a08}.stat{padding:17px}.stat span{color:var(--muted);font-size:13px}.stat strong{display:block;font-size:27px;margin-top:6px}
+.panel{padding:20px;margin-bottom:18px}.panel h3{margin:0 0 16px;font-size:18px}.filters,.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.field label{display:block;font-size:12px;font-weight:700;color:#475569;margin:0 0 6px}.field input,.field select,.field textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font:inherit;background:#fff;color:var(--ink)}.field textarea{min-height:85px;resize:vertical}.field.full{grid-column:1/-1}
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.room-card{padding:17px}.room-top{display:flex;justify-content:space-between;gap:8px;align-items:start}.room-card h4{margin:0 0 6px;font-size:17px}.room-card p{color:var(--muted);font-size:13px;margin:0 0 12px}.tag{display:inline-block;background:var(--pale);color:#1d4ed8;padding:5px 8px;border-radius:7px;font-size:11px;font-weight:700}.room-meta{display:flex;gap:12px;flex-wrap:wrap;color:#475569;font-size:12px;margin:12px 0}.btn{border:0;background:var(--blue);color:#fff;padding:10px 14px;border-radius:9px;font-weight:700;cursor:pointer}.btn:hover{filter:brightness(.94)}.btn.secondary{background:#eaf0fb;color:#1e40af}.btn.danger{background:#fee2e2;color:#991b1b}.btn.small{padding:7px 10px;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none!important}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line)}th{color:#475569;background:#f8fafc;font-size:12px}.status{font-weight:700;color:var(--green)}.empty{text-align:center;color:var(--muted);padding:25px}
+.notice{padding:12px 14px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:13px;margin-bottom:15px}.toast{position:fixed;right:20px;bottom:20px;background:#14213d;color:white;padding:13px 17px;border-radius:10px;box-shadow:0 8px 30px #0002;display:none;z-index:5}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
+@media(max-width:850px){.rooms{grid-template-columns:repeat(2,1fr)}.filters,.form-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){header{padding:18px}.stats,.rooms,.filters,.form-grid{grid-template-columns:1fr}main{margin:20px auto}.hero h2{font-size:24px}table{display:block;overflow-x:auto;white-space:nowrap}.panel{padding:15px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">C</div><div><h1>CampusSpace</h1><p>Classroom & Laboratory Booking System</p></div></div>
+ <nav>
+  <button class="active" data-view="home">Dashboard</button><button data-view="bookings">My Bookings</button><button data-view="weekly">Weekly Schedule</button><button data-view="admin">Room Admin</button>
+ </nav>
+</header>
+<main>
+<section id="home" class="view">
+ <div class="hero"><div><h2>Find your campus space</h2><p>Search rooms, check availability and request a booking.</p></div><button class="btn" onclick="document.getElementById('bookingForm').scrollIntoView({behavior:'smooth'})">＋ New Booking</button></div>
+ <div class="stats"><div class="stat"><span>Total rooms</span><strong id="roomCount">10</strong></div><div class="stat"><span>Active bookings</span><strong id="bookingCount">0</strong></div><div class="stat"><span>Available room types</span><strong>2</strong></div></div>
+ <div class="panel"><h3>Search rooms</h3><div class="filters">
+  <div class="field"><label>Search by name</label><input id="searchName" placeholder="e.g. Lab 01" oninput="renderRooms()"></div>
+  <div class="field"><label>Room type</label><select id="filterType" onchange="renderRooms()"><option value="">All types</option><option>Classroom</option><option>Laboratory</option></select></div>
+  <div class="field"><label>Minimum capacity</label><input id="filterCapacity" type="number" min="1" placeholder="Any" oninput="renderRooms()"></div>
+  <div class="field"><label>Equipment contains</label><input id="filterEquipment" placeholder="e.g. Projector" oninput="renderRooms()"></div>
+ </div></div>
+ <div id="rooms" class="rooms"></div>
+ <div class="panel" id="bookingForm"><h3>Request a room booking</h3><div class="notice">Choose a room and time. The system prevents overlapping bookings for the same room.</div>
+  <form id="bookForm"><div class="form-grid">
+   <div class="field"><label>Your name *</label><input id="requester" required placeholder="Enter your name"></div>
+   <div class="field"><label>Room *</label><select id="bookRoom" required></select></div>
+   <div class="field"><label>Date *</label><input id="bookDate" type="date" required></div>
+   <div class="field"><label>Purpose *</label><input id="purpose" required placeholder="Lecture, meeting, practical..."></div>
+   <div class="field"><label>Start time *</label><input id="startTime" type="time" required></div>
+   <div class="field"><label>End time *</label><input id="endTime" type="time" required></div>
+   <div class="field full"><button class="btn" type="submit">Submit Booking Request</button></div>
+  </div></form>
+ </div>
+</section>
+<section id="bookings" class="view hidden"><div class="hero"><div><h2>My Bookings</h2><p>View and cancel booking requests stored in this browser.</p></div></div><div class="panel"><div id="bookingTable"></div></div></section>
+<section id="weekly" class="view hidden"><div class="hero"><div><h2>Weekly Schedule</h2><p>Bookings for the selected week (Monday to Sunday).</p></div><div class="field"><label>Choose a date</label><input id="weekDate" type="date" onchange="renderWeekly()"></div></div><div class="panel"><div id="weeklyTable"></div></div></section>
+<section id="admin" class="view hidden"><div class="hero"><div><h2>Room Administration</h2><p>Add or remove rooms from this browser's room list.</p></div></div><div class="panel"><h3>Add a room</h3><form id="roomForm"><div class="form-grid">
+ <div class="field"><label>Room name *</label><input id="newRoomName" required placeholder="e.g. Room 205"></div>
+ <div class="field"><label>Type *</label><select id="newRoomType"><option>Classroom</option><option>Laboratory</option></select></div>
+ <div class="field"><label>Capacity *</label><input id="newRoomCapacity" type="number" min="1" required></div>
+ <div class="field"><label>Equipment (comma separated)</label><input id="newRoomEquipment" placeholder="Projector, Whiteboard"></div>
+ <div class="field full"><button class="btn" type="submit">Add Room</button></div>
+ </div></form></div><div class="panel"><h3>Manage rooms</h3><div id="adminRooms"></div></div></section>
+</main>
+<footer>CampusSpace • Classroom/Laboratory Booking System • Student project prototype</footer>
+<div id="toast" class="toast"></div>
+<script>
+const starterRooms=[
+ {id:1,name:"Classroom 101",type:"Classroom",capacity:40,equipment:["Projector","Whiteboard"]},
+ {id:2,name:"Classroom 102",type:"Classroom",capacity:50,equipment:["Projector","Whiteboard","Speakers"]},
+ {id:3,name:"Classroom 201",type:"Classroom",capacity:35,equipment:["Whiteboard"]},
+ {id:4,name:"Classroom 202",type:"Classroom",capacity:60,equipment:["Projector","Whiteboard"]},
+ {id:5,name:"Computer Lab 01",type:"Laboratory",capacity:30,equipment:["Computers","Projector"]},
+ {id:6,name:"Computer Lab 02",type:"Laboratory",capacity:25,equipment:["Computers","Internet"]},
+ {id:7,name:"Electrical Lab",type:"Laboratory",capacity:24,equipment:["Workbenches","Meters","Power Supply"]},
+ {id:8,name:"Physics Lab",type:"Laboratory",capacity:28,equipment:["Lab Equipment","Projector"]},
+ {id:9,name:"Seminar Hall",type:"Classroom",capacity:100,equipment:["Projector","Microphone","Speakers"]},
+ {id:10,name:"Meeting Room",type:"Classroom",capacity:15,equipment:["Display","Whiteboard"]}
+];
+let rooms=JSON.parse(localStorage.getItem("cs_rooms")||"null")||starterRooms;
+let bookings=JSON.parse(localStorage.getItem("cs_bookings")||"[]");
+const save=()=>{localStorage.setItem("cs_rooms",JSON.stringify(rooms));localStorage.setItem("cs_bookings",JSON.stringify(bookings));};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){let t=document.getElementById("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",2800)}
+function showView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("hidden",v.id!==id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="bookings")renderBookings();if(id==="weekly")renderWeekly();if(id==="admin")renderAdmin()}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
+function renderRooms(){
+ let q=document.getElementById("searchName").value.toLowerCase(),type=document.getElementById("filterType").value,cap=Number(document.getElementById("filterCapacity").value)||0,eq=document.getElementById("filterEquipment").value.toLowerCase();
+ let list=rooms.filter(r=>r.name.toLowerCase().includes(q)&&(!type||r.type===type)&&r.capacity>=cap&&r.equipment.join(" ").toLowerCase().includes(eq));
+ document.getElementById("rooms").innerHTML=list.length?list.map(r=>`<article class="room-card"><div class="room-top"><div><h4>${esc(r.name)}</h4><p>${esc(r.type)}</p></div><span class="tag">${r.capacity} seats</span></div><div class="room-meta"><span>⚙ ${esc(r.equipment.join(", ")||"No equipment listed")}</span></div><button class="btn small" onclick="selectRoom(${r.id})">Book this room</button></article>`).join(""):'<div class="panel empty">No rooms match your search.</div>';
+ document.getElementById("roomCount").textContent=rooms.length;document.getElementById("bookingCount").textContent=bookings.filter(b=>b.status==="Active").length;
+ document.getElementById("bookRoom").innerHTML=rooms.map(r=>`<option value="${r.id}">${esc(r.name)} (${r.type})</option>`).join("");
+}
+function selectRoom(id){document.getElementById("bookRoom").value=id;document.getElementById("bookingForm").scrollIntoView({behavior:"smooth"});}
+function overlaps(a,b){return a.roomId===b.roomId&&a.date===b.date&&a.status==="Active"&&a.start<b.end&&b.start<a.end}
+document.getElementById("bookForm").addEventListener("submit",e=>{
+ e.preventDefault();let b={id:Date.now(),requester:document.getElementById("requester").value.trim(),roomId:Number(document.getElementById("bookRoom").value),date:document.getElementById("bookDate").value,purpose:document.getElementById("purpose").value.trim(),start:document.getElementById("startTime").value,end:document.getElementById("endTime").value,status:"Active"};
+ if(!b.date||!b.start||!b.end||b.start>=b.end){toast("Please choose a valid date and time range.");return}
+ if(bookings.some(x=>overlaps(x,b))){toast("This room is already booked during that time.");return}
+ bookings.push(b);save();e.target.reset();renderRooms();toast("Booking request saved successfully."); 
+});
+function roomName(id){return rooms.find(r=>r.id===id)?.name||"Room removed"}
+function renderBookings(){
+ let el=document.getElementById("bookingTable");if(!bookings.length){el.innerHTML='<div class="empty">No bookings have been made yet.</div>';return}
+ el.innerHTML=`<table><thead><tr><th>Requester</th><th>Room</th><th>Date</th><th>Time</th><th>Purpose</th><th>Status</th><th>Action</th></tr></thead><tbody>${bookings.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).map(b=>`<tr><td>${esc(b.requester)}</td><td>${esc(roomName(b.roomId))}</td><td>${esc(b.date)}</td><td>${esc(b.start)}–${esc(b.end)}</td><td>${esc(b.purpose)}</td><td class="${b.status==='Active'?'status':''}">${b.status}</td><td>${b.status==='Active'?`<button class="btn danger small" onclick="cancelBooking(${b.id})">Cancel</button>`:'—'}</td></tr>`).join("")}</tbody></table>`;
+}
+function cancelBooking(id){let b=bookings.find(x=>x.id===id);if(b){b.status="Cancelled";save();renderBookings();renderRooms();toast("Booking cancelled.");}}
+function weekStart(date){let d=new Date(date+"T12:00:00");let day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d}
+function fmt(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function renderWeekly(){
+ let input=document.getElementById("weekDate");if(!input.value)input.value=fmt(new Date());let start=weekStart(input.value),days=Array.from({length:7},(_,i)=>{let d=new Date(start);d.setDate(d.getDate()+i);return fmt(d)});
+ document.getElementById("weeklyTable").innerHTML=`<table><thead><tr><th>Day / Date</th><th>Bookings</th></tr></thead><tbody>${days.map(d=>{let items=bookings.filter(b=>b.date===d&&b.status==="Active").sort((a,b)=>a.start.localeCompare(b.start));return `<tr><td><strong>${new Date(d+"T12:00:00").toLocaleDateString(undefined,{weekday:"long"})}</strong><br>${d}</td><td>${items.length?items.map(b=>`${esc(b.start)}–${esc(b.end)} · ${esc(roomName(b.roomId))} · ${esc(b.requester)}`).join("<br>"):'<span style="color:#94a3b8">No bookings</span>'}</td></tr>`}).join("")}</tbody></table>`;
+}
+function renderAdmin(){
+ document.getElementById("adminRooms").innerHTML=`<table><thead><tr><th>Room</th><th>Type</th><th>Capacity</th><th>Equipment</th><th>Action</th></tr></thead><tbody>${rooms.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.type)}</td><td>${r.capacity}</td><td>${esc(r.equipment.join(", "))}</td><td><button class="btn danger small" onclick="deleteRoom(${r.id})">Remove</button></td></tr>`).join("")}</tbody></table>`;
+}
+document.getElementById("roomForm").addEventListener("submit",e=>{e.preventDefault();let name=document.getElementById("newRoomName").value.trim();if(rooms.some(r=>r.name.toLowerCase()===name.toLowerCase())){toast("A room with this name already exists.");return}rooms.push({id:Date.now(),name,type:document.getElementById("newRoomType").value,capacity:Number(document.getElementById("newRoomCapacity").value),equipment:document.getElementById("newRoomEquipment").value.split(",").map(x=>x.trim()).filter(Boolean)});save();e.target.reset();renderRooms();renderAdmin();toast("Room added.");});
+function deleteRoom(id){if(bookings.some(b=>b.roomId===id&&b.status==="Active")){toast("Cancel active bookings before removing this room.");return}rooms=rooms.filter(r=>r.id!==id);save();renderRooms();renderAdmin();toast("Room removed.");}
+document.getElementById("bookDate").min=fmt(new Date());document.getElementById("weekDate").value=fmt(new Date());
+renderRooms();
+</script>
+</body>
+</html>
